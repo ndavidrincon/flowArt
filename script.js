@@ -2,17 +2,16 @@
 let scene, camera, renderer, controls, points;
 let renderMode = 'flow'; // 'flow' o 'surface'
 let time = 0;
-
-const container = document.getElementById('viewport');
-const particleCount = 20000; // Cantidad de puntos
-let positions = new Float32Array(particleCount * 3);
-
-// Funciones matemáticas por defecto (Atractor de Lorenz)
+// Funcion matemáticas por defecto (Atractor de Lorenz)
 let currentFunctions = {
     x: (scope) => 10 * (scope.y - scope.x),
     y: (scope) => scope.x * (28 - scope.z) - scope.y,
     z: (scope) => scope.x * scope.y - (8 / 3) * scope.z
 };
+
+const container = document.getElementById('viewport');
+const particleCount = 20000; // Cantidad de puntos
+let positions = new Float32Array(particleCount * 3);
 
 // --- BIBLIOTECA DE EJEMPLOS ---
 const examples = {
@@ -39,6 +38,12 @@ const examples = {
         x: "-y + 0.1 * x",
         y: "x + 0.1 * y",
         z: "0.5 * sin(t)"
+    },
+    spiral: {
+        name: "Espiral Galáctica",
+        x: "sin(t + u) * v",
+        y: "cos(t + u) * v",
+        z: "v * 0.1"
     }
 };
 
@@ -198,31 +203,31 @@ function createAxisLabel(text, x, y, z, color) {
     scene.add(sprite);
 }
 
+function loadExample(key) {
+    if (!key) return; // Si eligen la opción vacía, no hace nada
+
+    const ex = examples[key];
+
+    // Inyectar valores en los inputs
+    document.getElementById('eqX').value = ex.x;
+    document.getElementById('eqY').value = ex.y;
+    document.getElementById('eqZ').value = ex.z;
+
+    // Activar todos los ejes por defecto al cargar un ejemplo
+    document.getElementById('activeX').checked = true;
+    document.getElementById('activeY').checked = true;
+    document.getElementById('activeZ').checked = true;
+
+    // Disparar la renderización automática
+    updateVisualization();
+}
+
 function takeScreenshot() {
     renderer.render(scene, camera);
     const link = document.createElement('a');
-    link.download = `Flow-Art-${Date.now()}.png`;
+    link.download = `vector-gen-${Date.now()}.png`;
     link.href = renderer.domElement.toDataURL("image/png");
     link.click();
-}
-
-function loadExample(key) {
-    const ex = examples[key];
-    if (ex) {
-        // Llenar los campos de texto
-        document.getElementById('formulaName').value = ex.name;
-        document.getElementById('eqX').value = ex.x;
-        document.getElementById('eqY').value = ex.y;
-        document.getElementById('eqZ').value = ex.z;
-
-        // Asegurarse de que los checkboxes estén activos
-        document.getElementById('activeX').checked = true;
-        document.getElementById('activeY').checked = true;
-        document.getElementById('activeZ').checked = true;
-
-        // Ejecutar la visualización
-        updateVisualization();
-    }
 }
 
 // Event Listeners

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flow Art 3D - Lab</title>
+    <title>VectorGen 3D - Lab</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -16,6 +16,7 @@
 
     <nav class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
         <h1 class="font-bold text-xl tracking-tighter">Flow<span class="text-indigo-500">Art</span> 3D</h1>
+
         <button id="screenshotBtn"
             class="w-52 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
             <i class="fas fa-camera"></i> Descargar Captura
@@ -26,7 +27,7 @@
         <aside class="w-80 bg-slate-900 p-6 flex flex-col gap-6 overflow-y-auto border-r border-slate-800">
             <div class="space-y-4">
                 <div>
-                    <label class="text-[12px] uppercase text-slate-500 font-bold mb-2 block tracking-widest">Seleccionar
+                    <label class="text-[16px] uppercase text-slate-500 font-bold mb-2 block tracking-widest">Seleccionar
                         Ejemplo</label>
                     <select id="presetSelect" onchange="loadExample(this.value)"
                         class="w-full bg-slate-800 p-2.5 rounded-lg border border-slate-700 text-sm text-indigo-300 outline-none focus:ring-2 focus:ring-indigo-500 transition">
@@ -69,7 +70,6 @@
                         class="w-full bg-slate-800 p-2 rounded border border-slate-700 text-xs font-mono">
                 </div>
             </div>
-
             <div class="space-y-2">
                 <label class="text-[10px] uppercase text-slate-500 font-bold block">Estética de Partículas</label>
                 <div class="flex items-center gap-3">
@@ -86,7 +86,7 @@
 
             <button id="updateBtn"
                 class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-500 transition shadow-lg shadow-indigo-900/40">
-                Actualizar
+                Actualizar y Resetear
             </button>
         </aside>
 
