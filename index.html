@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VectorGen 3D - Lab</title>
+    <title>FlowArt 3D</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -15,14 +15,23 @@
 <body class="bg-slate-950 text-slate-200 overflow-hidden h-screen flex flex-col">
 
     <nav class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
-        <h1 class="font-bold text-xl tracking-tighter">Flow<span class="text-indigo-500">Art</span> 3D</h1>
+        <div class="flex items-center gap-3">
+            <button id="menuToggle" class="lg:hidden text-indigo-400 hover:text-white transition">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                    </path>
+                </svg>
+            </button>
+            <h1 class="font-bold text-xl tracking-tighter">Flow<span class="text-indigo-500">Art</span> 3D</h1>
+        </div>
 
         <button id="screenshotBtn"
-            class="w-52 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
-            <i class="fas fa-camera"></i> Descargar Captura
+            class="hidden md:flex bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition items-center gap-2">
+            Capturar PNG
         </button>
     </nav>
 
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-40 hidden"></div>
     <main class="flex flex-1 overflow-hidden">
         <aside class="w-80 bg-slate-900 p-6 flex flex-col gap-6 overflow-y-auto border-r border-slate-800">
             <div class="space-y-4">

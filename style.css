@@ -26,3 +26,26 @@
 #updateBtn:active {
     transform: scale(0.98);
 }
+
+@media (max-width: 1024px) {
+    aside {
+        position: fixed;
+        left: -100%;
+        /* Oculto por defecto */
+        top: 60px;
+        /* Debajo del nav */
+        bottom: 0;
+        z-index: 50;
+        transition: left 0.3s ease-in-out;
+        width: 280px;
+    }
+
+    aside.active {
+        left: 0;
+        /* Se muestra al activar */
+    }
+
+    #sidebarOverlay.active {
+        display: block;
+    }
+}
