@@ -1,0 +1,28 @@
+/* Estilos personalizados para el canvas y scrollbars */
+#viewport canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+}
+
+/* Animación simple para el botón de actualización */
+#updateBtn:active {
+    transform: scale(0.98);
+}
