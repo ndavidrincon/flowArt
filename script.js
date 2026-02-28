@@ -9,6 +9,7 @@ let currentFunctions = {
     y: (scope) => scope.x * (28 - scope.z) - scope.y,
     z: (scope) => scope.x * scope.y - (8 / 3) * scope.z
 };
+let line;
 
 const container = document.getElementById('viewport');
 
@@ -18,7 +19,8 @@ const examples = {
     torus: { x: "(5 + 2 * cos(v)) * cos(u)", y: "(5 + 2 * cos(v)) * sin(u)", z: "2 * sin(v)" },
     sphere: { x: "5 * sin(u) * cos(v)", y: "5 * sin(u) * sin(v)", z: "5 * cos(u)" },
     tornado: { x: "-y + 0.1 * x", y: "x + 0.1 * y", z: "0.5 * sin(t)" },
-    spiral: { x: "sin(t + u) * v", y: "cos(t + u) * v", z: "v * 0.1" }
+    spiral: { x: "sin(t + u) * v", y: "cos(t + u) * v", z: "v * 0.1" },
+    lissajous: { x: "sin(21*u) * cos(u) * 1.5", y: "sin(21*u) * sin(u) * 1.5", z: "cos(21 * u) * 1.2" }
 };
 
 // --- FUNCIONES DEL MENÚ MÓVIL ---
@@ -64,7 +66,7 @@ function init() {
     resetParticles();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-    const material = new THREE.PointsMaterial({
+    const pointMaterial = new THREE.PointsMaterial({
         color: 0x00ffff,
         size: 0.1,
         transparent: true,
@@ -72,8 +74,17 @@ function init() {
         blending: THREE.AdditiveBlending
     });
 
-    points = new THREE.Points(geometry, material);
+    points = new THREE.Points(geometry, pointMaterial);
     scene.add(points);
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.8
+    });
+    line = new THREE.Line(geometry, lineMaterial); // Usa la misma geometría que los puntos
+    line.visible = false; // Oculta por defecto
+    scene.add(line);
 
     animate();
 }
@@ -95,9 +106,9 @@ function createAxisLabel(text, x, y, z, color) {
 }
 
 function updateVisualization() {
-    const eqX_text = document.getElementById('eqX').value.toLowerCase();
-    const eqY_text = document.getElementById('eqY').value.toLowerCase();
-    const eqZ_text = document.getElementById('eqZ').value.toLowerCase();
+    const eqX_text = document.getElementById('eqX').value.toLowerCase().replace(/sen/g, 'sin');
+    const eqY_text = document.getElementById('eqY').value.toLowerCase().replace(/sen/g, 'sin');
+    const eqZ_text = document.getElementById('eqZ').value.toLowerCase().replace(/sen/g, 'sin');
     const allText = eqX_text + eqY_text + eqZ_text;
 
     try {
@@ -108,14 +119,26 @@ function updateVisualization() {
         if (allText.includes('u') || allText.includes('v')) {
             renderMode = 'surface';
             generateSurface();
+
+            // Si tiene 'v' es una malla de puntos, si no, es una línea
+            if (allText.includes('v')) {
+                line.visible = false;
+                points.visible = true;
+                points.material.size = 0.05; // Puntos pequeños para la superficie
+            } else {
+                line.visible = true;
+                points.visible = false;
+            }
         } else {
             renderMode = 'flow';
             resetParticles();
+            line.visible = false;
+            points.visible = true;
+            points.material.size = parseFloat(document.getElementById('particleSize').value);
         }
-
         closeMenuIfMobile();
     } catch (e) {
-        alert("Error en la fórmula: " + e.message);
+        alert("Error: " + e.message);
     }
 }
 
@@ -131,18 +154,36 @@ function loadExample(key) {
 
 function generateSurface() {
     const positionsArray = points.geometry.attributes.position.array;
-    const res = Math.floor(Math.sqrt(particleCount));
-    let count = 0;
-    for (let i = 0; i < res; i++) {
-        for (let j = 0; j < res; j++) {
-            const u = (i / res) * Math.PI * 2;
-            const v = (j / res) * Math.PI * 2;
-            const scope = { u, v, t: time };
-            const idx = count * 3;
+    const eqText = document.getElementById('eqX').value + document.getElementById('eqY').value + document.getElementById('eqZ').value;
+
+    // Detectamos si la fórmula usa la variable 'v'
+    const hasV = eqText.toLowerCase().includes('v');
+
+    if (hasV) {
+        // MODO SUPERFICIE (Para Esferas, Toroides, etc.)
+        const res = Math.floor(Math.sqrt(particleCount));
+        let count = 0;
+        for (let i = 0; i < res; i++) {
+            for (let j = 0; j < res; j++) {
+                const u = (i / res) * Math.PI * 2;
+                const v = (j / res) * Math.PI * 2;
+                const scope = { u, v, t: time };
+                const idx = count * 3;
+                positionsArray[idx] = currentFunctions.x(scope) * 10;
+                positionsArray[idx + 1] = currentFunctions.y(scope) * 10;
+                positionsArray[idx + 2] = currentFunctions.z(scope) * 10;
+                count++;
+            }
+        }
+    } else {
+        // MODO LÍNEA (Para Lissajous y curvas 1D)
+        for (let i = 0; i < particleCount; i++) {
+            const u = (i / particleCount) * Math.PI * 2 * 10; // Más longitud para la curva
+            const scope = { u, v: 0, t: time };
+            const idx = i * 3;
             positionsArray[idx] = currentFunctions.x(scope) * 10;
             positionsArray[idx + 1] = currentFunctions.y(scope) * 10;
             positionsArray[idx + 2] = currentFunctions.z(scope) * 10;
-            count++;
         }
     }
     points.geometry.attributes.position.needsUpdate = true;
@@ -172,6 +213,7 @@ function animate() {
         points.geometry.attributes.position.needsUpdate = true;
     }
 
+    line.material.color.set(document.getElementById('particleColor').value);
     points.material.color.set(document.getElementById('particleColor').value);
     points.material.size = parseFloat(document.getElementById('particleSize').value);
     controls.update();
