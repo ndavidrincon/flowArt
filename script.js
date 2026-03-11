@@ -20,7 +20,9 @@ const examples = {
     sphere: { x: "5 * sin(u) * cos(v)", y: "5 * sin(u) * sin(v)", z: "5 * cos(u)" },
     tornado: { x: "-y + 0.1 * x", y: "x + 0.1 * y", z: "0.5 * sin(t)" },
     spiral: { x: "sin(t + u) * v", y: "cos(t + u) * v", z: "v * 0.1" },
-    lissajous: { x: "sin(21*u) * cos(u) * 1.5", y: "sin(21*u) * sin(u) * 1.5", z: "cos(21 * u) * 1.2" }
+    lissajous: { x: "sin(21*u) * cos(u) * 1.5", y: "sin(21*u) * sin(u) * 1.5", z: "cos(21 * u) * 1.2" },
+    lissajous2: { x: "sin(31*u)* 1.5", y: "sin(37*u) * 1.5", z: "cos(43 * u) * 1.2" }
+
 };
 
 // --- FUNCIONES DEL MENÚ MÓVIL ---
@@ -198,6 +200,10 @@ function resetParticles() {
 function animate() {
     requestAnimationFrame(animate);
     time += 0.01;
+
+    const yScaleValue = parseFloat(document.getElementById('yScale').value);
+    points.scale.y = yScaleValue;
+    line.scale.y = yScaleValue;
 
     if (renderMode === 'flow') {
         const positionsArray = points.geometry.attributes.position.array;
