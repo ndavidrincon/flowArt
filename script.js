@@ -201,27 +201,60 @@ function animate() {
     requestAnimationFrame(animate);
     time += 0.01;
 
-    const yScaleValue = parseFloat(document.getElementById('yScale').value);
-    points.scale.y = yScaleValue;
-    line.scale.y = yScaleValue;
-
     if (renderMode === 'flow') {
         const positionsArray = points.geometry.attributes.position.array;
-        const dt = 0.005;
+        const h = 0.01; // El "paso" (step size) del integrador
+
         for (let i = 0; i < particleCount; i++) {
             const idx = i * 3;
-            const scope = { x: positionsArray[idx], y: positionsArray[idx + 1], z: positionsArray[idx + 2], t: time };
-            if (document.getElementById('activeX').checked) positionsArray[idx] += currentFunctions.x(scope) * dt;
-            if (document.getElementById('activeY').checked) positionsArray[idx + 1] += currentFunctions.y(scope) * dt;
-            if (document.getElementById('activeZ').checked) positionsArray[idx + 2] += currentFunctions.z(scope) * dt;
-            if (Math.abs(positionsArray[idx]) > 100) positionsArray[idx] = (Math.random() - 0.5) * 5;
+            const x = positionsArray[idx];
+            const y = positionsArray[idx + 1];
+            const z = positionsArray[idx + 2];
+
+            // --- PASO 1: Calcular k1 (Pendiente en el punto inicial) ---
+            const scope1 = { x, y, z, t: time };
+            const k1x = currentFunctions.x(scope1);
+            const k1y = currentFunctions.y(scope1);
+            const k1z = currentFunctions.z(scope1);
+
+            // --- PASO 2: Calcular k2 (Pendiente en el punto predicho) ---
+            const scope2 = {
+                x: x + k1x * h,
+                y: y + k1y * h,
+                z: z + k1z * h,
+                t: time + h
+            };
+            const k2x = currentFunctions.x(scope2);
+            const k2y = currentFunctions.y(scope2);
+            const k2z = currentFunctions.z(scope2);
+
+            // --- ACTUALIZACIÓN FINAL: Promedio de pendientes ---[cite: 7]
+            if (document.getElementById('activeX').checked) {
+                positionsArray[idx] += (h / 2) * (k1x + k2x);
+            }
+            if (document.getElementById('activeY').checked) {
+                positionsArray[idx + 1] += (h / 2) * (k1y + k2y);
+            }
+            if (document.getElementById('activeZ').checked) {
+                positionsArray[idx + 2] += (h / 2) * (k1z + k2z);
+            }
+
+            // Reposicionamiento si salen del límite
+            if (Math.abs(positionsArray[idx]) > 80) {
+                positionsArray[idx] = (Math.random() - 0.5) * 5;
+            }
         }
         points.geometry.attributes.position.needsUpdate = true;
+
+    } else if (renderMode === 'surface') {
+        generateSurface(); // Refresca la curva si tiene el parámetro 't'
     }
 
+    // Actualización de materiales y controles
     line.material.color.set(document.getElementById('particleColor').value);
     points.material.color.set(document.getElementById('particleColor').value);
     points.material.size = parseFloat(document.getElementById('particleSize').value);
+
     controls.update();
     renderer.render(scene, camera);
 }
